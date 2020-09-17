@@ -101,6 +101,12 @@ def get_row_dict(header_row_labels_by_x, row, tolerance=1) -> Dict[float, str]:
 #     'Belastung in EUR': 'r',
 #     'Gutschrift in EUR': 'r',
 # }
+# ALIGNMENT = 'lllrr'
+# def map_german_float(x):
+#     return float(x.replace('.', '').replace(',', '.'))
+# TYPE_MAPPINGS = [str, str, str, map_german_float, map_german_float]
+
+
 # TODO: Class 'HeaderRow'
 HEADER_ROW = get_header_row(page_elements)
 HEADER_ROW_TEXTS = get_texts(HEADER_ROW)
