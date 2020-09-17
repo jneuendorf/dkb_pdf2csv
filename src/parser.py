@@ -67,14 +67,13 @@ class Parser:
             tolerance=self.column_x_tolerance,
         )
 
-
-    def parse(self, pdf: str):
+    def parse(self):
         # Save each page separately.
         # This way, we avoid e.g. footer addresses to add over pages
         # because they always have the same coordinates.
         pages: List[List[Row]] = []
 
-        for page_layout in extract_pages(pdf):
+        for page_layout in extract_pages(self.pdf):
             rows = defaultdict(list)
             for element in page_layout:
                 # Basically LTChar and LTTextContainer + subclasses.
@@ -86,13 +85,13 @@ class Parser:
                 if is_positioned_text:
                     # (x1, y1) is the top-right and we need to top coordinate
                     rows[element.y1].append(element)
-            # pages.append(rows)
             pages.append([
                 Row(row_cells, **self._row_kwargs)
                 for row_cells in rows.values()
             ])
 
-        header_row = self.get_header_row(pages)
+        header_row = HeaderRow(pages, **self._header_row_kwargs)
+        print(header_row.cells)
         detected_num_columns = len(header_row)
 
         if (
@@ -106,43 +105,9 @@ class Parser:
         else:
             num_columns = detected_num_columns
 
-        header_row_labels = header_row.get_texts()
-        # if self.header_row_labels is None:
-        #     header_row_labels = header_row.get_texts()
-        # else:
-        #     header_row_labels = self.header_row_labels
-
-        HEADER_ROW_LABELS_BY_X = {
-            # left x coordinates
-            **{
-                cell.x0: header_row_labels[i]
-                for i, cell in enumerate(header_row)
-            },
-            # right x coordinates
-            **{
-                cell.x1: header_row_labels[i]
-                for i, cell in enumerate(header_row)
-            },
-        }
-
         for i, rows in enumerate(pages):
             for row in rows:
                 if len(row) >= num_columns - self.max_missing_cells_per_row:
                     if row != header_row:
                         print(row.as_dict(header_row))
-                        # print(get_row_dict(HEADER_ROW_LABELS_BY_X, row))
                         print()
-
-    def get_header_row(self, pages) -> HeaderRow:
-        """Look for number of columns of the table.
-        Assuming that the header row has the greatest number of elements
-        with the same top-y value.
-        We also assume the table has the same structure across all pages
-        and starts on the 1st page.
-        """
-        header_cells = []
-        for y, elements in pages[0].items():
-            if len(elements) > len(header_cells):
-                header_cells = elements
-
-        return HeaderRow(header_cells, **self._header_row_kwargs)

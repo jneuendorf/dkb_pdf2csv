@@ -1,16 +1,18 @@
-from typing import List
+from typing import List, Dict, Any
 
 from .types import Element
 
 
 class Row:
     cells: List[Element]
+    options: Dict[str, Any]
 
-    def __init__(self, cells):
+    def __init__(self, cells, **options):
         self.cells = cells
+        self.options = options
 
     def get_texts(self) -> List[str]:
-        return [cell.get_text().strip() for cell in self]
+        return [cell.get_text().strip() for cell in self.cells]
 
     def as_dict(self, header_row: "HeaderRow"):
         """
@@ -20,7 +22,7 @@ class Row:
         or the right x (x1) coordinate.
         """
 
-        header_row_labels_by_x = self.get_labels_by_x()
+        header_row_labels_by_x = header_row.get_labels_by_x()
         row_dict = {}
         for i, cell in enumerate(self.cells):
             cell_text = cell.get_text().strip()
@@ -32,11 +34,11 @@ class Row:
             else:
                 x0s_in_tolerance = [
                     x for x in header_row_labels_by_x.keys()
-                    if abs(x - cell.x0) <= tolerance
+                    if abs(x - cell.x0) <= self.options['tolerance']
                 ]
                 x1s_in_tolerance = [
                     x for x in header_row_labels_by_x.keys()
-                    if abs(x - cell.x1) <= tolerance
+                    if abs(x - cell.x1) <= self.options['tolerance']
                 ]
                 # If there is only one distinct value within the tolerance,
                 # we take it (as we prefer left alignment just like above).
@@ -69,36 +71,26 @@ class Row:
 
 class HeaderRow(Row):
 
-    def __init__(self, pages, header_row_labels=None):
+    def __init__(self, pages, **options):
+        """Look for number of columns of the table.
+        Assuming that the header row has the greatest number of elements
+        with the same top-y value.
+        We also assume the table has the same structure across all pages
+        and starts on the 1st page.
+        """
         header_cells = []
-        for elements in pages[0]:
-            if len(elements) > len(header_cells):
-                header_cells = elements
+        for row in pages[0]:
+            if len(row) > len(header_cells):
+                header_cells = row.cells
 
-        super().__init__(header_cells)
-        self.header_row_labels = header_row_labels
-
-        # self.header_row_labels = (
-        #     header_row_labels
-        #     if header_row_labels is not None
-        #     else super().get_texts()
-        # )
-    # def __init__(self, cells, header_row_labels=None):
-    #     super().__init__(cells)
-    #     self.header_row_labels = (
-    #         header_row_labels
-    #         if header_row_labels is not None
-    #         else super().get_texts()
-    #     )
+        super().__init__(header_cells, **options)
 
     def get_texts(self):
         return (
-            self.header_row_labels
-            if self.header_row_labels is not None
+            self.options['custom_labels']
+            if self.options['custom_labels'] is not None
             else super().get_texts()
         )
-    # def get_texts(self):
-    #     return self.header_row_labels
 
     def get_labels_by_x(self):
         header_row_labels = self.get_texts()
