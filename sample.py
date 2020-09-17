@@ -61,10 +61,11 @@ def get_row_dict(header_row_labels_by_x, row, tolerance=1) -> Dict[float, str]:
     row_dict = {}
     for i, cell in enumerate(row):
         cell_text = cell.get_text().strip()
+        matched_x = None
         if cell.x0 in header_row_labels_by_x:
-            row_dict[cell.x0] = cell_text
+            matched_x = cell.x0
         elif cell.x1 in header_row_labels_by_x:
-            row_dict[cell.x1] = cell_text
+            matched_x = cell.x1
         else:
             x0s_in_tolerance = [
                 x for x in header_row_labels_by_x.keys()
@@ -77,21 +78,20 @@ def get_row_dict(header_row_labels_by_x, row, tolerance=1) -> Dict[float, str]:
             # If there is only one distinct value within the tolerance,
             # we take it (as we prefer left alignment just like above).
             if len(x0s_in_tolerance) == 1:
-                row_dict[x0s_in_tolerance[0]] = cell_text
+                matched_x = x0s_in_tolerance[0]
             # Try right alignment.
             elif len(x1s_in_tolerance) == 1:
-                row_dict[x1s_in_tolerance[0]] = cell_text
+                matched_x = x1s_in_tolerance[0]
             else:
                 print('cell index =', i)
                 raise ValueError(
                     f'Could not associate cell {str(cell)} with a column.'
                 )
 
-    return {
-        header_row_labels_by_x[x]: text
-        for x, text in row_dict.items()
-    }
-    # return row_dict
+        if matched_x is not None:
+            row_dict[header_row_labels_by_x[matched_x]] = cell_text
+
+    return row_dict
 
 
 # ALIGNMENT = {
@@ -105,10 +105,12 @@ def get_row_dict(header_row_labels_by_x, row, tolerance=1) -> Dict[float, str]:
 HEADER_ROW = get_header_row(page_elements)
 HEADER_ROW_TEXTS = get_texts(HEADER_ROW)
 HEADER_ROW_LABELS_BY_X = {
+    # left x coordinates
     **{
         cell.x0: cell.get_text().strip()
         for cell in HEADER_ROW
     },
+    # right x coordinates
     **{
         cell.x1: cell.get_text().strip()
         for cell in HEADER_ROW
@@ -117,10 +119,10 @@ HEADER_ROW_LABELS_BY_X = {
 N_COLS = len(HEADER_ROW)
 
 print()
-print()
+# print()
 # print(HEADER_ROW)
-print(HEADER_ROW_TEXTS)
-print()
+# print(HEADER_ROW_TEXTS)
+# print()
 print(HEADER_ROW_LABELS_BY_X)
 print()
 print()
@@ -131,6 +133,5 @@ for i, rows in enumerate(page_elements):
         if len(row) >= N_COLS - 1:
             row_texts = get_texts(row)
             if row_texts != HEADER_ROW_TEXTS:
-                # print(row_texts)
                 print(get_row_dict(HEADER_ROW_LABELS_BY_X, row))
                 print()
