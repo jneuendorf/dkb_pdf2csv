@@ -48,9 +48,9 @@ class Row:
                 elif len(x1s_in_tolerance) == 1:
                     matched_x = x1s_in_tolerance[0]
                 else:
-                    print('cell index =', i)
                     raise ValueError(
-                        f'Could not associate cell {str(cell)} with a column.'
+                        f'Could not associate cell {str(cell)} at '
+                        f'positition {i} ''with a column.'
                     )
 
             if matched_x is not None:

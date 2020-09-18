@@ -1,6 +1,12 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+)
 
 from pdfminer.high_level import extract_pages
 import pdfminer.layout as layout
@@ -67,7 +73,7 @@ class Parser:
             tolerance=self.column_x_tolerance,
         )
 
-    def parse(self):
+    def parse(self) -> Tuple[HeaderRow, List[Row]]:
         # Save each page separately.
         # This way, we avoid e.g. footer addresses to add over pages
         # because they always have the same coordinates.
@@ -105,9 +111,11 @@ class Parser:
         else:
             num_columns = detected_num_columns
 
+        table_rows = []
         for i, rows in enumerate(pages):
             for row in rows:
                 if len(row) >= num_columns - self.max_missing_cells_per_row:
                     if row != header_row:
-                        print(row.as_dict(header_row))
-                        print()
+                        table_rows.append(row)
+
+        return header_row, table_rows
