@@ -24,14 +24,12 @@ class Parser:
 
     Attributes:
         pdf
-        column_types: Optional[
-        alignment:
-        header_row_labels: Optional[
-        max_missing_cells_per_row: int = 1
+        alignment
+        header_row_labels
+        max_missing_cells_per_row
     """
 
     pdf: str
-    column_types: Optional[List[Type]] = None
     alignment: Optional[str] = None
     header_row_labels: Optional[List[str]] = None
     column_x_tolerance: int = 1
@@ -47,8 +45,6 @@ class Parser:
     def __post_init__(self):
         custom_attrs = []
 
-        if self.column_types is not None:
-            custom_attrs.append(self.column_types)
         if self.alignment is not None:
             custom_attrs.append(self.alignment)
         if self.header_row_labels is not None:
@@ -61,9 +57,8 @@ class Parser:
                 self._implied_num_columns = lengths[0]
             else:
                 raise ValueError(
-                    'Some arguments\' lenghts do not match. '
-                    'Make sure "column_types", "alignment" and '
-                    '"header_row_labels" have the same length!'
+                    'Some arguments\' lenghts do not match. Make sure '
+                    '"alignment" and "header_row_labels" have the same length!'
                 )
 
         self._header_row_kwargs = dict(
@@ -97,7 +92,6 @@ class Parser:
             ])
 
         header_row = HeaderRow(pages, **self._header_row_kwargs)
-        print(header_row.cells)
         detected_num_columns = len(header_row)
 
         if (
@@ -106,7 +100,7 @@ class Parser:
         ):
             raise ValueError(
                 f'Detected {detected_num_columns} columns but '
-                f'your arguments imply {self._implied_num_columns} columns.'
+                f'your arguments imply {self._implied_num_columns} column(s).'
             )
         else:
             num_columns = detected_num_columns

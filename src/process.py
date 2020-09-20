@@ -16,7 +16,7 @@ class Process:
     def get_config(self):
         try:
             from config import config as custom_config
-        except ModuleNotFoundError:
+        except (ModuleNotFoundError, ImportError):
             custom_config = {}
         config = {
             **default_config,
