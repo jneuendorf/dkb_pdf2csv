@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
+# import logging
 from typing import (
     Any,
     Dict,
@@ -16,6 +17,9 @@ from .row import Row, HeaderRow
 
 
 DEFAULT_COLUMN_TYPE: Type = str
+
+# TODO: Use verbose debug logging
+# logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -84,8 +88,11 @@ class Parser:
                      and isinstance(element, layout.LTComponent)
                 )
                 if is_positioned_text:
+                    # TODO: Make range configurable. Rounding means buckets
+                    # with size 1 but maybe one needs more
                     # (x1, y1) is the top-right and we need to top coordinate
-                    rows[element.y1].append(element)
+                    rows[int(element.y1)].append(element)
+
             pages.append([
                 Row(row_cells, **self._row_kwargs)
                 for row_cells in rows.values()

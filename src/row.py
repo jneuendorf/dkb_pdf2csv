@@ -32,6 +32,7 @@ class Row:
             elif cell.x1 in header_row_labels_by_x:
                 matched_x = cell.x1
             else:
+                # TODO: Check if 'tolerance' in self.options
                 x0s_in_tolerance = [
                     x for x in header_row_labels_by_x.keys()
                     if abs(x - cell.x0) <= self.options['tolerance']
@@ -63,6 +64,10 @@ class Row:
 
     def __eq__(self, row):
         return isinstance(row, Row) and self.get_texts() == row.get_texts()
+
+    def __str__(self):
+        texts = self.get_texts()
+        return f'<{self.__class__.__name__} {str([text for text in texts])}>'
 
     # @property
     # def y_top(self):
@@ -106,3 +111,11 @@ class HeaderRow(Row):
                 for i, cell in enumerate(self.cells)
             },
         }
+
+    def __eq__(self, row):
+        """Compares also the cell texts in case self.options['custom_label']
+        is set. If there are custom labels the header row read from the PDF
+        still contains the original labels which the HeaderRow instance knows
+        because the original cells are still associated.
+        """
+        return super().__eq__(row) or Row(self.cells) == row
