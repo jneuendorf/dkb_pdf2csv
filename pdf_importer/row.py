@@ -14,6 +14,9 @@ class Row:
     def get_texts(self) -> List[str]:
         return [cell.get_text().strip() for cell in self.cells]
 
+    def get_text(self, sep: str = '') -> str:
+        return sep.join(self.get_texts())
+
     def as_dict(self, header_row: "HeaderRow"):
         """
         Since a row can miss a cell in the middle,

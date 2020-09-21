@@ -36,7 +36,7 @@ class Parser:
     pdf: str
     alignment: Optional[str] = None
     header_row_labels: Optional[List[str]] = None
-    column_x_tolerance: int = 1
+    column_x_tolerance: float = 1.0
     max_missing_cells_per_row: int = 1
     """Number of cells that may be missing in a row. Rows with less elements
     are not considered rows of the table and disregarded.
@@ -119,4 +119,4 @@ class Parser:
                     if row != header_row:
                         table_rows.append(row)
 
-        return header_row, table_rows
+        return header_row, table_rows, pages

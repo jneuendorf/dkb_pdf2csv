@@ -1,4 +1,4 @@
-from typing import List, Dict, Callable, Any
+from typing import List, Callable, Any
 
 import pdfminer.layout as layout
 

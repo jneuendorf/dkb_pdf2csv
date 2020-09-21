@@ -1,6 +1,6 @@
 import argparse
 
-from src.process import Process
+from pdf_importer.process import Process
 
 
 if __name__ == '__main__':

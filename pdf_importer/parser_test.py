@@ -3,7 +3,7 @@ import unittest
 from .parser import Parser
 
 
-TEST_PDF = "test.pdf"
+TEST_PDF = "pdf_importer/test.pdf"
 HEADER_ROW_LABELS = [
     'Bu.Tag',
     'Wert',
