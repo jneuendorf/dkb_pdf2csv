@@ -1,5 +1,7 @@
 .coverage
 /config.py
 db.sqlite3
+dist
 htmlcov
+node_modules
 pdfs
