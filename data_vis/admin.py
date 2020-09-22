@@ -1,4 +1,5 @@
 from collections import defaultdict
+import traceback
 from typing import DefaultDict, List
 
 from django.contrib import admin, messages
@@ -22,8 +23,8 @@ class SeriesAdmin(admin.ModelAdmin):
 
 @admin.register(PdfFile)
 class PdfFileAdmin(admin.ModelAdmin):
-    readonly_fields = ['is_imported']
-    actions = ["import_pdfs"]
+    list_display = ['pk', 'file', 'is_imported']
+    actions = ['import_pdfs']
 
     def import_pdfs(self, request, queryset):
         if queryset.filter(series__isnull=True).count() > 0:
@@ -46,6 +47,7 @@ class PdfFileAdmin(admin.ModelAdmin):
                 )
                 self.message_user(request, error_message, level=messages.ERROR)
                 print(error_message)
+                traceback.print_exc()
 
         if error_message is None:
             self.message_user(

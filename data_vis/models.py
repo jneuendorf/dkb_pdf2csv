@@ -14,7 +14,7 @@ from .utils import pdf_import
 
 class Series(models.Model):
     name = models.CharField(max_length=100)
-    initial_value = models.IntegerField(default=0)
+    initial_value = models.FloatField(default=0)
 
     def import_pdfs(self, pdf_filenames: List[str], pdfs: List['PdfFile']):
         process = Process(config=dict(
@@ -36,7 +36,7 @@ class Series(models.Model):
         ][0]
         pattern = (
             r'^Kontoauszug Nummer \d{3} / \d{4} vom '
-            r'(\d{2}\.\d{2}\.\d{4}) bis (\d{2}\.\d{2}\.\d{4})$'
+            r'(\d{2}\.\d{2}\.\d{4}) bis (\d{2}\.\d{2}\.\d{4})'
         )
         match = re.match(pattern, date_range_text)
         date_range = [
@@ -91,10 +91,13 @@ class DataPoint(models.Model):
     meta = models.TextField(default='')
 
     class Meta:
-        unique_together = ['series', 'x', 'dy']
+        unique_together = ['series', 'x', 'dy', 'meta']
 
     def __str__(self):
-        return f'<{self.__class__.__name__} {self.x} {self.dy} {self.meta[:10]}>'
+        return (
+            f'<{self.__class__.__name__} '
+            f'{self.x} {self.dy} {self.meta[:10]}>'
+        )
 
 
 class PdfFile(models.Model):

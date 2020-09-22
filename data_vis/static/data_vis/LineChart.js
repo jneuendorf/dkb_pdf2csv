@@ -1,29 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { ResponsiveLine } from '@nivo/line'
 
-
-// make sure parent container have a defined height when using
-// responsive component, otherwise height will be 0 and
-// no chart will be rendered.
-// website examples showcase many properties,
-// you'll often use just a few of them.
-export const MyResponsiveLine = (props) => {
-    const [data, setData] = useState(null)
-
-    useEffect(() => {
-        async function getData() {
-            if (!data) {
-                const response = await fetch('/data_vis/api/')
-                const data = await response.json()
-                setData(data)
-                console.log(data)
-            }
-        }
-
-        getData()
-    })
+import { ToolTip } from './ToolTip'
 
 
+export const MyResponsiveLine = ({data, onClick}) => {
     return data && <ResponsiveLine
         data={data}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
@@ -42,8 +23,7 @@ export const MyResponsiveLine = (props) => {
             tickPadding: 5,
             tickRotation: 0,
             format: '%b %d',
-            tickValues: 'every 7 days',
-            // tickValues: 'every 50 days',
+            tickValues: 'every month',
             // tickValues: 10,
             legend: 'Date',
             legendOffset: 36,
@@ -92,8 +72,7 @@ export const MyResponsiveLine = (props) => {
                 ]
             }
         ]}
-        tooltip={props => <div>
-            {props.point.data.x.toLocaleString()} {props.point.data.y} {props.point.data.meta}
-        </div>}
+        tooltip={ToolTip}
+        onClick={onClick}
     />
 }

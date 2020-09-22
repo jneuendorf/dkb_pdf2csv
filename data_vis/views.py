@@ -23,29 +23,24 @@ def data(request: HttpRequest):
     series_data = []
     for s in series:
         points_by_date = defaultdict(list)
-        # y = s.initial_value
         for point in s.data_points.filter(x__gte=start, x__lte=end):
-            # next_y = y + point.dy
             points_by_date[point.x.date()].append(dict(
                 dy=point.dy,
                 meta=point.meta,
             ))
-            # points_by_date.append(dict(
-            #     x=point.x,
-            #     y=next_y,
-            #     meta=point.meta,
-            # ))
-            # y = next_y
 
         s_data = []
         y = s.initial_value
         for date in sorted(points_by_date.keys()):
             points = points_by_date[date]
-            next_y = y + sum(point['dy'] for point in points)
+            next_y = round(y + sum(point['dy'] for point in points), 2)
             aggregated_point = dict(
                 x=date.strftime('%Y-%m-%d'),
                 y=next_y,
-                meta=', '.join(point['meta'] for point in points)
+                meta='; '.join([
+                    f"{point['meta']} ({str(point['dy'])})"
+                    for point in points
+                ])
             )
             s_data.append(aggregated_point)
 
@@ -53,7 +48,6 @@ def data(request: HttpRequest):
 
         series_data.append({
             'id': s.name,
-            # 'color': '',
             'data': s_data,
         })
 
