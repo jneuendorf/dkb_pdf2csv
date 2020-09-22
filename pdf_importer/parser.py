@@ -93,9 +93,15 @@ class Parser:
                     # (x1, y1) is the top-right and we need to top coordinate
                     rows[int(element.y1)].append(element)
 
+            # Making sure we append rows from top to bottom
+            # (thus sorting descending by y1).
             pages.append([
                 Row(row_cells, **self._row_kwargs)
-                for row_cells in rows.values()
+                for y1, row_cells in sorted(
+                    rows.items(),
+                    key=lambda tup: tup[0],
+                    reverse=True,
+                )
             ])
 
         header_row = HeaderRow(pages, **self._header_row_kwargs)

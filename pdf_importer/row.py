@@ -26,7 +26,12 @@ class Row:
         """
 
         header_row_labels_by_x = header_row.get_labels_by_x()
-        row_dict = {}
+        row_dict = {
+            # NOTE: This is useful for debugging functions that otherwise don't
+            # have access to the row and its cells.
+            '__self__': self,
+        }
+
         for i, cell in enumerate(self.cells):
             cell_text = cell.get_text().strip()
             matched_x = None
