@@ -5,11 +5,9 @@ from typing import List, Tuple
 from django.conf import settings
 from django.db import models, transaction
 
-
+from data_vis.utils import pdf_import
 from pdf_importer.process import Process
 from pdf_importer.row import Row, HeaderRow
-from .validators import validate_is_pdf
-from .utils import pdf_import
 
 
 class Series(models.Model):
@@ -77,39 +75,3 @@ class Series(models.Model):
 
     def __str__(self):
         return f'<{self.__class__.__name__} {self.name} {self.initial_value}>'
-
-
-class DataPoint(models.Model):
-    series = models.ForeignKey(
-        Series,
-        on_delete=models.CASCADE,
-        related_name='data_points',
-    )
-    x = models.DateTimeField()
-    dy = models.FloatField()
-    """The change in value."""
-    meta = models.TextField(default='')
-
-    class Meta:
-        unique_together = ['series', 'x', 'dy', 'meta']
-
-    def __str__(self):
-        return (
-            f'<{self.__class__.__name__} '
-            f'{self.x} {self.dy} {self.meta[:10]}>'
-        )
-
-
-class PdfFile(models.Model):
-    series = models.ForeignKey(
-        Series,
-        on_delete=models.CASCADE,
-        related_name='pdfs',
-        blank=True,
-        null=True,
-    )
-    file = models.FileField(upload_to='pdfs/%Y/', validators=[validate_is_pdf])
-    is_imported = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'<{self.__class__.__name__} {self.file.name}>'

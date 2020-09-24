@@ -1,9 +1,8 @@
-from collections import defaultdict
-
 from django.shortcuts import render
 from django.http import HttpRequest, JsonResponse
 
 from .models import Series
+from . import utils
 
 
 def index(request: HttpRequest):
@@ -22,33 +21,9 @@ def data(request: HttpRequest):
 
     series_data = []
     for s in series:
-        points_by_date = defaultdict(list)
-        for point in s.data_points.filter(x__gte=start, x__lte=end):
-            points_by_date[point.x.date()].append(dict(
-                dy=point.dy,
-                meta=point.meta,
-            ))
-
-        s_data = []
-        y = s.initial_value
-        for date in sorted(points_by_date.keys()):
-            points = points_by_date[date]
-            next_y = round(y + sum(point['dy'] for point in points), 2)
-            aggregated_point = dict(
-                x=date.strftime('%Y-%m-%d'),
-                y=next_y,
-                meta='; '.join([
-                    f"{point['meta']} ({str(point['dy'])})"
-                    for point in points
-                ])
-            )
-            s_data.append(aggregated_point)
-
-            y = next_y
-
         series_data.append({
             'id': s.name,
-            'data': s_data,
+            'data': utils.data.accumulated(s, start, end),
         })
 
     return JsonResponse(series_data, safe=False)

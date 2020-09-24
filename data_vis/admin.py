@@ -1,11 +1,14 @@
 from collections import defaultdict
 import traceback
-from typing import DefaultDict, List
+from io import BytesIO
+from typing import DefaultDict, Iterable, List
+from zipfile import ZipFile
 
 from django.contrib import admin, messages
-
+from django.http import FileResponse
 
 from .models import Series, DataPoint, PdfFile
+from . import utils
 
 
 class DataPointInline(admin.TabularInline):
@@ -19,6 +22,32 @@ class PdfFileInline(admin.TabularInline):
 @admin.register(Series)
 class SeriesAdmin(admin.ModelAdmin):
     inlines = [DataPointInline, PdfFileInline]
+    actions = ['export_csv']
+
+    def export_csv(self, request, queryset: Iterable[Series]):
+        """See
+        https://chase-seibert.github.io/blog/2010/07/23/django-zip-files-create-dynamic-in-memory-archives-with-pythons-zipfile.html
+        """  # NOQA
+        in_memory_zip = BytesIO()
+        zip = ZipFile(in_memory_zip, mode='a')
+
+        for series in queryset:
+            filename, csv_data = utils.csv_export.series_to_csv(series)
+            zip.writestr(filename, csv_data)
+
+        # fix for Linux zip files read in Windows
+        for file in zip.filelist:
+            file.create_system = 0
+
+        zip.close()
+        in_memory_zip.seek(0)
+
+        return FileResponse(
+            in_memory_zip,
+            filename='series.zip',
+            as_attachment=True,
+            content_type='application/zip',
+        )
 
 
 @admin.register(PdfFile)
