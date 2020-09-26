@@ -29,6 +29,7 @@ export const App = props => {
         right: '150px',
         bottom: '300px',
         left: '150px',
+        fontFamily: 'sans-serif',
     }}>
         <MyResponsiveLine data={data} onClick={selectPoint} />
         <div className='meta'>
