@@ -5,6 +5,7 @@ from typing import List, Tuple
 from django.conf import settings
 from django.db import models, transaction
 
+from data_vis.models import DataPoint, PdfFile
 from data_vis.utils import pdf_import
 from pdf_importer.process import Process
 from pdf_importer.row import Row, HeaderRow
@@ -14,7 +15,7 @@ class Series(models.Model):
     name = models.CharField(max_length=100)
     initial_value = models.FloatField(default=0)
 
-    def import_pdfs(self, pdf_filenames: List[str], pdfs: List['PdfFile']):
+    def import_pdfs(self, pdf_filenames: List[str], pdfs: List[PdfFile]):
         process = Process(config=dict(
             parser=getattr(settings, 'DATA_VIS_PARSE_OPTIONS', {}),
             transform_emit=self.transform_emit,
@@ -26,7 +27,7 @@ class Series(models.Model):
                        header_row: HeaderRow,
                        rows: List[Row],
                        rows_by_page: List[List[Row]],
-                       pdf: 'PdfFile'):
+                       pdf: PdfFile):
         date_range_text = [
             row.get_text()
             for row in rows_by_page[0]

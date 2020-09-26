@@ -13,16 +13,19 @@ class DataPoint(models.Model):
     dy = models.FloatField()
     """The change in value."""
     meta = models.TextField(default='')
+    tags = models.ManyToManyField('Tag', related_name='data_points')
 
     class Meta:
         unique_together = ['series', 'x', 'dy', 'meta']
 
     def as_dict(self):
         return {
-            field_name: getattr(self, field_name)
-            for field_name in self.CSV_FIELD_NAMES
+            **{
+                field_name: getattr(self, field_name)
+                for field_name in self.CSV_FIELD_NAMES
+            },
+            'tags': list(self.tags.values_list('identifier', flat=True)),
         }
-        # return dict(x=self.x, dy=self.dy, meta=self.meta)
 
     def __str__(self):
         return (

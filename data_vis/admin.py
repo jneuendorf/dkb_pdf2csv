@@ -7,7 +7,7 @@ from zipfile import ZipFile
 from django.contrib import admin, messages
 from django.http import FileResponse
 
-from .models import Series, DataPoint, PdfFile
+from .models import Series, DataPoint, PdfFile, Tag
 from . import utils
 
 
@@ -49,6 +49,9 @@ class SeriesAdmin(admin.ModelAdmin):
             content_type='application/zip',
         )
 
+    def import_csv(self):
+        ...
+
 
 @admin.register(PdfFile)
 class PdfFileAdmin(admin.ModelAdmin):
@@ -87,3 +90,20 @@ class PdfFileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(DataPoint)
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('identifier', 'short_desc', 'is_abstract', 'short_meta')
+
+    def short_desc(self, obj):
+        description = obj.description
+        if len(description) > 60:
+            return f'{description[:60]}...'
+        return description
+
+    def short_meta(self, obj):
+        meta = obj.meta
+        if len(meta) > 60:
+            return f'{meta[:60]}...'
+        return meta
