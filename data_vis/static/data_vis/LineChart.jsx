@@ -1,11 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ResponsiveLine } from '@nivo/line'
 
 import { ToolTip } from './ToolTip'
 
 
-export const MyResponsiveLine = ({data, onClick}) => {
-    return data && <ResponsiveLine
+export const LineChart = ({data, onClick, toggleSeries}) => {
+    // const [ignoredTags, setIgnoredTags] = useState(new Set())
+    //
+    // const filteredData = data.map(({data, ...rest}) => {
+    //     return {
+    //         data: data.filter(
+    //             point => intersection(ignoredTags, point.tags).size === 0
+    //         ),
+    //         ...rest,
+    //     }
+    // })
+
+    return <ResponsiveLine
         data={data}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{
@@ -14,7 +25,13 @@ export const MyResponsiveLine = ({data, onClick}) => {
             useUTC: false,
             precision: 'day',
         }}
-        yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: true, reverse: false }}
+        yScale={{
+            type: 'linear',
+            min: 'auto',
+            max: 'auto',
+            stacked: true,
+            reverse: false,
+        }}
         axisTop={null}
         axisRight={null}
         axisBottom={{
@@ -69,7 +86,8 @@ export const MyResponsiveLine = ({data, onClick}) => {
                             itemOpacity: 1
                         }
                     }
-                ]
+                ],
+                onClick: (series, event) => toggleSeries(series.id)
             }
         ]}
         tooltip={ToolTip}

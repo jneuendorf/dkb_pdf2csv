@@ -1,4 +1,6 @@
 import React from 'react'
+import styled from 'styled-components'
+
 
 /** See https://stackoverflow.com/a/16348977/6928824 */
 const stringToRgb = str => {
@@ -7,11 +9,9 @@ const stringToRgb = str => {
         hash = str.charCodeAt(i) + ((hash << 5) - hash)
     }
 
-    // let color = '#'
     const color = []
     for (let i = 0; i < 3; i++) {
         const value = (hash >> (i * 8)) & 0xFF
-        // color += ('00' + value.toString(16)).substr(-2)
         color[i] = value
     }
     return color
@@ -34,6 +34,31 @@ const colorIsLight = ([r, g, b]) => {
 }
 
 
+const StyledToolTip = styled.div`
+    background: rgba(255, 255, 255, 0.70);
+    border: 1px solid rgba(30, 30, 30, 0.70);
+    border-radius: 5px;
+    max-width: 300px;
+    padding: 10px;
+`
+
+const XY = ({x, y}) => <div>
+    {x.toLocaleString('de-DE', {dateStyle: 'short'})}
+    &nbsp; {y}
+    &euro;
+</div>
+
+const StyledTag = styled.div`
+    background-color: ${props => rgbToHex(stringToRgb(props.tag))};
+    border-radius: 4px;
+    color: ${props => colorIsLight(stringToRgb(props.tag)) ? 'black' : 'white'};
+    display: inline-block;
+    margin-right: 3px;
+    mix-blend-mode: difference;
+    padding: 4px;
+`
+
+
 export const ToolTip = props => {
     const {point} = props
     const {
@@ -44,35 +69,15 @@ export const ToolTip = props => {
     } = point
     const [kind, recipient] = meta.split('\n')
 
-    return <div className='tooltip' style={{
-            background: 'rgba(255, 255, 255, 0.70)',
-            border: '1px solid rgba(30, 30, 30, 0.70)',
-            borderRadius: '5px',
-            maxWidth: '300px',
-            padding: '10px'
-        }}>
-        <div className='xy'>
-            {point.data.x.toLocaleString('de-DE', {dateStyle: 'short'})}
-            &nbsp; {point.data.y}
-            &euro;
-        </div>
-        <div className='meta'>
+    return <StyledToolTip>
+        <XY x={point.data.x} y={point.data.y} />
+        <div>
             {kind}, {recipient}
         </div>
-        <div className='tags'>
-            {
-                tags.map(tag => <div key={tag} className='tag' style={{
-                    backgroundColor: rgbToHex(stringToRgb(tag)),
-                    borderRadius: '4px',
-                    color: colorIsLight(stringToRgb(tag)) ? 'black' : 'white',
-                    display: 'inline-block',
-                    marginRight: '3px',
-                    mixBlendMode: 'difference',
-                    padding: '4px',
-                }}>
-                    {tag}
-                </div>)
-            }
+        <div>
+            {tags.map(
+                tag => <StyledTag key={tag} tag={tag}>{tag}</StyledTag>
+            )}
         </div>
-    </div>
+    </StyledToolTip>
 }

@@ -1,6 +1,10 @@
 from django.db import models
 
 
+def identify(x):
+    return x
+
+
 class DataPoint(models.Model):
     CSV_FIELD_NAMES = ('x', 'dy', 'meta')
 
@@ -18,10 +22,15 @@ class DataPoint(models.Model):
     class Meta:
         unique_together = ['series', 'x', 'dy', 'meta']
 
-    def as_dict(self):
+    def as_dict(self, transformers=None):
+        if transformers is None:
+            transformers = {}
+
         return {
             **{
-                field_name: getattr(self, field_name)
+                field_name: transformers.get(field_name, identify)(
+                    getattr(self, field_name)
+                )
                 for field_name in self.CSV_FIELD_NAMES
             },
             'tags': list(self.tags.values_list('identifier', flat=True)),
