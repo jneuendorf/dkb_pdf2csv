@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { createSliderWithTooltip, Range } from 'rc-slider'
 import styled from 'styled-components'
 

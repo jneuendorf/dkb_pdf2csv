@@ -1,31 +1,36 @@
 import React from 'react'
 
 
-export const TagFilter = ({tags, ignoredTags, setIgnoredTags}) => {
-    return <ul>
+export const TagFilter = ({tags, highlightedTags, setHighlightedTags}) => {
+    return <ul style={{ paddingInlineStart: '15px' }}>
         {
             tags
             .filter(({is_abstract}) => !is_abstract)
             .map(({identifier: tag}) => {
-                const checked = ignoredTags.indexOf(tag) >= 0
-                return <li key={tag}>
+                const checked = highlightedTags.indexOf(tag) >= 0
+                const id = `checkbox_${tag}`
+                return <li
+                    key={tag}
+                    style={{ listStyleType: 'none' }}
+                >
                     <input
+                        id={id}
                         type='checkbox'
                         checked={checked}
                         onChange={event => {
                             if (checked) {
-                                setIgnoredTags(
-                                    ignoredTags.filter(
-                                        ignoredTag => ignoredTag !== tag
-                                    )
-                                )
+                                setHighlightedTags(highlightedTags.filter(
+                                    ignoredTag => ignoredTag !== tag
+                                ))
                             }
                             else {
-                                setIgnoredTags([...ignoredTags, tag])
+                                setHighlightedTags([...highlightedTags, tag])
                             }
                         }}
                     />
-                    {tag}
+                    <label htmlFor={id}>
+                        {tag}
+                    </label>
                 </li>
             })
         }

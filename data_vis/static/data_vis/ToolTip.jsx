@@ -76,7 +76,9 @@ export const ToolTip = props => {
         </div>
         <div>
             {tags.map(
-                tag => <StyledTag key={tag} tag={tag}>{tag}</StyledTag>
+                tag => <StyledTag key={tag} tag={tag}>
+                    {tag}
+                </StyledTag>
             )}
         </div>
     </StyledToolTip>

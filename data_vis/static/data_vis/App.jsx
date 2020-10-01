@@ -41,7 +41,7 @@ export const App = props => {
     const [chartData, setChartData] = useState([])
     const [tags, setTags] = useState([])
     const [dateRangeMinMax, setDateRangeMinMax] = useState([0, 0])
-    const [ignoredTags, setIgnoredTags] = useState([])
+    const [highlightedTags, setHighlightedTags] = useState([])
     const [selectedPoint, selectPoint] = useState(null)
 
     useEffect(() => {
@@ -71,36 +71,13 @@ export const App = props => {
         getData()
     })
 
-    const filteredData = chartData
-    // const filteredData = (
-    //     chartData
-    //     // .filter(({id}) => ignoredSeries.indexOf(id) === -1)
-    //     .map(({data, id, ...rest}) => {
-    //         const ignoredTagsSet = new Set(ignoredTags)
-    //         const d = (
-    //             ignoredSeries.indexOf(id) >= 0
-    //             ? [{x: toShortIsoString(Date.now()), y: 0, meta: '', tags: []}]
-    //             : data.filter(
-    //                 point => intersection(ignoredTagsSet, point.tags).size === 0
-    //             )
-    //         )
-    //         return {
-    //             data: d,
-    //             id,
-    //             ...rest,
-    //         }
-    //     })
-    // )
-
-    console.log(chartData, filteredData)
-
     return <Container>
         <Filters>
-            FILTERS
+            <h3>Tags</h3>
             <TagFilter
                 tags={tags}
-                ignoredTags={ignoredTags}
-                setIgnoredTags={setIgnoredTags}
+                highlightedTags={highlightedTags}
+                setHighlightedTags={setHighlightedTags}
             />
         </Filters>
         <ChartContainer>
@@ -115,6 +92,7 @@ export const App = props => {
 
             <LineChart
                 data={chartData}
+                highlightedTags={highlightedTags}
                 onClick={selectPoint}
             />
 

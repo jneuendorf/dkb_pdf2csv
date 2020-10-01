@@ -1,21 +1,13 @@
 import React, { useState } from 'react'
 import { ResponsiveLine } from '@nivo/line'
 
+import { DotsItemSymbol } from './DotsItemSymbol'
 import { ToolTip } from './ToolTip'
 
 
-export const LineChart = ({data, onClick}) => {
+export const LineChart = ({ data, highlightedTags, onClick }) => {
     const [ignoredSeries, setIgnoredSeries] = useState([])
-    // const [ignoredTags, setIgnoredTags] = useState(new Set())
-    //
-    // const filteredData = data.map(({data, ...rest}) => {
-    //     return {
-    //         data: data.filter(
-    //             point => intersection(ignoredTags, point.tags).size === 0
-    //         ),
-    //         ...rest,
-    //     }
-    // })
+
     const regardedSeries = data.map(series => {
         if (ignoredSeries.indexOf(series.id) >= 0) {
             return {...series, data: []}
@@ -50,7 +42,6 @@ export const LineChart = ({data, onClick}) => {
             tickRotation: 0,
             format: '%b %d',
             tickValues: 'every month',
-            // tickValues: 10,
             legend: 'Date',
             legendOffset: 36,
             legendPosition: 'middle'
@@ -65,12 +56,17 @@ export const LineChart = ({data, onClick}) => {
             legendPosition: 'middle'
         }}
         colors={{ scheme: 'nivo' }}
-        pointSize={10}
+        pointSize={5}
         pointColor={{ theme: 'background' }}
-        pointBorderWidth={2}
+        pointBorderWidth={1.8}
         pointBorderColor={{ from: 'serieColor' }}
         pointLabel="y"
         pointLabelYOffset={-12}
+        // TODO: Don't recreate component every time
+        pointSymbol={props => <DotsItemSymbol
+            {...props}
+            highlightedTags={highlightedTags}
+        />}
         useMesh={true}
         legends={[
             {
