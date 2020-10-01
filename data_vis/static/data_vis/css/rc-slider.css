@@ -225,9 +225,6 @@
 .rc-slider-tooltip-placement-top {
   padding: 4px 0 8px 0;
 }
-.rc-slider-tooltip-placement-bottom {
-  width: 80px;
-}
 .rc-slider-tooltip-inner {
   padding: 6px 2px;
   min-width: 24px;

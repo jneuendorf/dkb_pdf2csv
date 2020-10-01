@@ -4,7 +4,8 @@ import { ResponsiveLine } from '@nivo/line'
 import { ToolTip } from './ToolTip'
 
 
-export const LineChart = ({data, onClick, toggleSeries}) => {
+export const LineChart = ({data, onClick}) => {
+    const [ignoredSeries, setIgnoredSeries] = useState([])
     // const [ignoredTags, setIgnoredTags] = useState(new Set())
     //
     // const filteredData = data.map(({data, ...rest}) => {
@@ -15,9 +16,17 @@ export const LineChart = ({data, onClick, toggleSeries}) => {
     //         ...rest,
     //     }
     // })
+    const regardedSeries = data.map(series => {
+        if (ignoredSeries.indexOf(series.id) >= 0) {
+            return {...series, data: []}
+        }
+        else {
+            return series
+        }
+    })
 
     return <ResponsiveLine
-        data={data}
+        data={regardedSeries}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{
             type: 'time',
@@ -87,7 +96,16 @@ export const LineChart = ({data, onClick, toggleSeries}) => {
                         }
                     }
                 ],
-                onClick: (series, event) => toggleSeries(series.id)
+                onClick: (series, event) => {
+                    if (ignoredSeries.indexOf(series.id) >= 0) {
+                        setIgnoredSeries(ignoredSeries.filter(
+                            ignoredId => ignoredId !== series.id
+                        ))
+                    }
+                    else {
+                        setIgnoredSeries([...ignoredSeries, series.id])
+                    }
+                }
             }
         ]}
         tooltip={ToolTip}

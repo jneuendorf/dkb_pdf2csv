@@ -42,7 +42,6 @@ export const App = props => {
     const [tags, setTags] = useState([])
     const [dateRangeMinMax, setDateRangeMinMax] = useState([0, 0])
     const [ignoredTags, setIgnoredTags] = useState([])
-    const [ignoredSeries, setIgnoredSeries] = useState([])
     const [selectedPoint, selectPoint] = useState(null)
 
     useEffect(() => {
@@ -115,18 +114,8 @@ export const App = props => {
             }
 
             <LineChart
-                data={filteredData}
+                data={chartData}
                 onClick={selectPoint}
-                toggleSeries={id => {
-                    if (ignoredSeries.indexOf(id) >= 0) {
-                        setIgnoredSeries(ignoredSeries.filter(
-                            ignoredId => ignoredId !== id
-                        ))
-                    }
-                    else {
-                        setIgnoredSeries([...ignoredSeries, id])
-                    }
-                }}
             />
 
             <div className='meta'>
