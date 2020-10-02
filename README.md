@@ -3,6 +3,11 @@
 `pipenv run python main.py ./sample.pdf `
 
 
+## Installation
+
+- `brew install libmagic` for [python-magic](https://pypi.org/project/python-magic/)
+
+
 ## Process
 
 1. Parse the PDF file into a list of table rows (data).

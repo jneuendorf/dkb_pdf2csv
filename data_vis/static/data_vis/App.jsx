@@ -47,8 +47,21 @@ const ChartContainer = styled.div`
     position: absolute;
     top: 0;
     right: 0;
-    bottom: 300px;
+    bottom: 200px;
     left: 250px;
+`
+
+const ChartCaption = styled(({ data, className }) => {
+    const longestSeries = Math.max(
+        0,
+        ...data.map(series => series.data.length)
+    )
+    return <h4 className={className}>
+        {longestSeries}&nbsp;points
+    </h4>
+})`
+    margin: 30px 0 0 0;
+    padding-left: 50px;
 `
 
 
@@ -110,6 +123,7 @@ export const App = props => {
                 />
             }
 
+            <ChartCaption data={chartData} />
             <LineChart
                 data={chartData}
                 highlightedTags={highlightedTags}
