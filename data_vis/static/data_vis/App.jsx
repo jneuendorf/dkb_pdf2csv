@@ -21,11 +21,26 @@ const Container = styled.div`
 `
 
 const Filters = styled.div`
+    border-right: 1px solid rgba(0,0,0,.1);
+    bottom: 0;
+    left: 0;
     position: absolute;
     top: 0;
     width: 250px;
-    bottom: 0;
-    left: 0;
+`
+
+const FilterContainer = styled.div`
+    padding: 10px 5px;
+    margin-bottom: 16px;
+    transition: box-shadow 0.4s;
+
+    &:hover {
+        box-shadow: 0 10px 20px rgba(0,0,0,.1);
+    }
+`
+
+const FilterHeading = styled.h3`
+    margin-top: 5px;
 `
 
 const ChartContainer = styled.div`
@@ -51,7 +66,6 @@ export const App = props => {
                 if (data.length > 0 && tags.length > 0) {
                     setChartData(data)
                     setTags(tags)
-                    // setStore({data, tags})
                     const initialDateRange = (
                         data
                         .map((series) =>
@@ -73,12 +87,18 @@ export const App = props => {
 
     return <Container>
         <Filters>
-            <h3>Tags</h3>
-            <TagFilter
-                tags={tags}
-                highlightedTags={highlightedTags}
-                setHighlightedTags={setHighlightedTags}
-            />
+            <FilterContainer>
+                <FilterHeading>Search</FilterHeading>
+                <input />
+            </FilterContainer>
+            <FilterContainer>
+                <FilterHeading>Tags</FilterHeading>
+                <TagFilter
+                    tags={tags}
+                    highlightedTags={highlightedTags}
+                    setHighlightedTags={setHighlightedTags}
+                />
+            </FilterContainer>
         </Filters>
         <ChartContainer>
             {
