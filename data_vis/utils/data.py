@@ -1,5 +1,6 @@
 from collections import defaultdict
-from datetime import date as Date
+from datetime import date as Date, timezone as Timezone
+from functools import partial
 from typing import Iterable, Tuple, List, TypedDict, Set
 
 
@@ -15,13 +16,28 @@ class Point(TypedDict):
 
 
 def limited(series, start, end):
-    transformers = dict(
-        x=lambda x: x.date(),
-    )
+    j = 0
+    last_date = None
+
+    def transform_x(i, x):
+        nonlocal last_date, j
+        if x.date() == last_date:
+            last_date = x.date()
+            j += 1
+        else:
+            j = 0
+        return x.replace(minute=j, tzinfo=Timezone.utc).isoformat()
+    # transformers = dict(
+    #     # x=lambda x: x.date(),
+    #     x=lambda x: x.replace().isoformat(),
+    # )
     return sorted(
         [
-            point.as_dict(transformers)
-            for point in series.data_points.filter(x__gte=start, x__lte=end)
+            # point.as_dict(transformers)
+            point.as_dict(x=partial(transform_x, i))
+            for i, point in enumerate(
+                series.data_points.filter(x__gte=start, x__lte=end)
+            )
         ],
         key=lambda item: item['x']
     )
@@ -55,13 +71,18 @@ def accumulated(series,
                 end='9999-12-31') -> Tuple[List[Point], Set[str]]:
     series_data = []
     y = series.initial_value
-    for date, points in grouped_by_date(series, start, end):
-        aggregated_point = aggregate_points(points)
-        aggregated_point['x'] = aggregated_point['x'].strftime('%Y-%m-%d')
-        aggregated_point['y'] = aggregated_point.pop('dy')
-        next_y = round(y + aggregated_point['y'], 2)
-        series_data.append(aggregated_point)
+    # for date, points in grouped_by_date(series, start, end):
+    #     aggregated_point = aggregate_points(points)
+    #     aggregated_point['x'] = aggregated_point['x'].strftime('%Y-%m-%d')
+    #     aggregated_point['y'] = aggregated_point.pop('dy')
+    #     next_y = round(y + aggregated_point['y'], 2)
+    #     series_data.append(aggregated_point)
+    #
+    #     y = next_y
+    for point in limited(series, start, end):
+        point['y'] = round(y + point['dy'], 2)
+        series_data.append(point)
 
-        y = next_y
+        y = point['y']
 
     return series_data

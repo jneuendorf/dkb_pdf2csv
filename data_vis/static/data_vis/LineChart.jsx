@@ -22,9 +22,13 @@ export const LineChart = ({ data, highlightedTags, onClick }) => {
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{
             type: 'time',
-            format: '%Y-%m-%d',
-            useUTC: false,
-            precision: 'day',
+            // https://github.com/d3/d3-time-format#isoParse
+            format: '%Y-%m-%dT%H:%M:%S%Z',
+            useUTC: true,
+            // useUTC: false,
+            // precision: 'day',
+            // precision: 'millisecond',
+            precision: 'minute',
         }}
         yScale={{
             type: 'linear',

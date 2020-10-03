@@ -22,10 +22,7 @@ class DataPoint(models.Model):
     class Meta:
         unique_together = ['series', 'x', 'dy', 'meta']
 
-    def as_dict(self, transformers=None):
-        if transformers is None:
-            transformers = {}
-
+    def as_dict(self, **transformers):
         return {
             **{
                 field_name: transformers.get(field_name, identify)(
