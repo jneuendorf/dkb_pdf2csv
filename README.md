@@ -41,3 +41,9 @@ config = dict(
     transform_emit=transform_emit,
 )
 ```
+
+
+## Jupyter Notebook + Django Shell Plus
+
+Run `pipenv run python manage.py shell_plus --notebook`.
+See https://medium.com/ayuth/how-to-use-django-in-jupyter-notebook-561ea2401852.

@@ -1,4 +1,5 @@
 .coverage
+.ipynb_checkpoints
 /config.py
 db.sqlite3
 dist

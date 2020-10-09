@@ -5,12 +5,17 @@ verify_ssl = true
 
 [dev-packages]
 pudb = "*"
+iterable-orm = "*"
+mypy = "*"
+notebook = "*"
 
 [packages]
 "pdfminer.six" = "*"
 coverage = "*"
 django = "*"
 python-magic = "*"
+python-dateutil = "*"
+django-extensions = "*"
 
 [requires]
 python_version = "3.8"

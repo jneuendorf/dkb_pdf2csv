@@ -5,6 +5,7 @@ class BaseClassifier(ABC):
     EXPORTABLES = ()
 
     tag_queryset = None
+    tag_meta_vars = None
 
     def __init__(self, tag_queryset):
         self.tag_queryset = tag_queryset
@@ -26,7 +27,7 @@ class BaseClassifier(ABC):
         """Classifies the given data point as zero, one or multiple
         of the given existing tag_queryset.
 
-        Paramters:
+        Parameters:
         - data_point: data_vis.models.DataPoint
         - tag_queryset: Iterable[data_vis.models.Tag]
         - tag_meta_vars: Dict[str, Dict[str, Any]]
@@ -54,5 +55,8 @@ class BaseClassifier(ABC):
                 exportable_var: locals.get(exportable_var)
                 for exportable_var in exportable_vars
             }
+
+        if errors:
+            raise ValueError(errors)
 
         return tag_meta_vars

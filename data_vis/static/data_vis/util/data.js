@@ -13,7 +13,7 @@ export async function fetchData(urls) {
 export async function getInitialData() {
     return await fetchData([
         // fetch(`/data_vis/data/${search}&start=null&end=null`),
-        `/data_vis/data/`,
+        `/data_vis/data/distributed/`,
         // fetch(`/data_vis/data_raw/`),
         '/data_vis/tags/',
     ])
@@ -22,7 +22,7 @@ export async function getInitialData() {
 export async function updateChartData(dateRange, setChartData) {
     const [start, end] = dateRange
     const [json] = await fetchData([
-        `/data_vis/data/?start=${toShortIsoString(start)}&end=${toShortIsoString(end)}`
+        `/data_vis/data/distributed/?start=${toShortIsoString(start)}&end=${toShortIsoString(end)}`
     ])
     setChartData(json)
 }

@@ -1,58 +1,82 @@
 from collections import defaultdict
-from datetime import date as Date, timezone as Timezone
-from functools import partial
-from typing import Iterable, Tuple, List, TypedDict, Set
-
-
-class PointNoX(TypedDict):
-    dy: float
-    meta: str
+from datetime import timezone as Timezone
+from typing import Iterable, List, TypedDict
 
 
 class Point(TypedDict):
     x: str
+    y: float
     dy: float
     meta: str
 
 
-def limited(series, start, end):
-    j = 0
-    last_date = None
+# def limited(series, start, end):
+#     def transform_x(x):
+#         return x.replace(tzinfo=Timezone.utc).isoformat()
+#
+#     return sorted(
+#         [
+#             point.as_dict(x=transform_x)
+#             for i, point in enumerate(
+#                 series.data_points.filter(x__gte=start, x__lte=end)
+#             )
+#         ],
+#         key=lambda item: item['x']
+#     )
 
-    def transform_x(i, x):
-        nonlocal last_date, j
-        if x.date() == last_date:
-            last_date = x.date()
-            j += 1
-        else:
-            j = 0
-        return x.replace(minute=j, tzinfo=Timezone.utc).isoformat()
-    # transformers = dict(
-    #     # x=lambda x: x.date(),
-    #     x=lambda x: x.replace().isoformat(),
-    # )
+
+# TODO: use itertools.groupby?!
+def grouped_points(points,
+                   key=lambda p: p.x.date()) -> Iterable[List[Point]]:
+    """Groups points within the date range by the 'key' argument."""
+
+    points_by_date = defaultdict(list)
+    for point in points:
+        points_by_date[key(point)].append(point)
     return sorted(
-        [
-            # point.as_dict(transformers)
-            point.as_dict(x=partial(transform_x, i))
-            for i, point in enumerate(
-                series.data_points.filter(x__gte=start, x__lte=end)
-            )
-        ],
-        key=lambda item: item['x']
+        points_by_date.values(),
+        key=lambda points: key(points[0]),
     )
 
 
-def grouped_by_date(series, start, end) -> Iterable[Tuple[Date, PointNoX]]:
-    points_by_date = defaultdict(list)
-    for point in series.data_points.filter(x__gte=start, x__lte=end):
-        points_by_date[point.x.date()].append(point)
-    return list(sorted(points_by_date.items(), key=lambda item: item[0]))
+def distributed_grouped(grouped) -> List[Point]:
+    """Evenly distributes points in the same group across the day
+    (rounded to minutes).
+
+    Example: If there are 3 points for one date 2020-01-01, those 3 points will
+    be assigned the datetimes
+    - 2020-01-01T00:00:00
+    - 2020-01-01T08:00:00
+    - 2020-01-01T16:00:00
+    """
+
+    MINUTES_PER_DAY = 24 * 60
+
+    points = []
+    for _, group in grouped:
+        group_size = len(group)
+        space_in_minutes = MINUTES_PER_DAY // group_size
+        used_minutes = 0
+        for point in group:
+            hour, minute = divmod(used_minutes, 60)
+            points.append(point.as_dict(
+                x=lambda x: (
+                    point.x
+                    .replace(
+                        hour=hour,
+                        minute=minute,
+                        tzinfo=Timezone.utc,
+                    )
+                    .isoformat()
+                )
+            ))
+            used_minutes += space_in_minutes
+    return points
 
 
 def aggregate_points(points):
     return dict(
-        x=points[0].x.date(),
+        x=points[0].x.date().strftime('%Y-%m-%d'),
         dy=sum(point.dy for point in points),
         meta='; '.join([
             f"{point.meta} ({str(point.dy)})"
@@ -66,23 +90,24 @@ def aggregate_points(points):
     )
 
 
-def accumulated(series,
-                start='1970-01-01',
-                end='9999-12-31') -> Tuple[List[Point], Set[str]]:
+def aggregated(series, limited_points) -> List[Point]:
     series_data = []
     y = series.initial_value
-    # for date, points in grouped_by_date(series, start, end):
-    #     aggregated_point = aggregate_points(points)
-    #     aggregated_point['x'] = aggregated_point['x'].strftime('%Y-%m-%d')
-    #     aggregated_point['y'] = aggregated_point.pop('dy')
-    #     next_y = round(y + aggregated_point['y'], 2)
-    #     series_data.append(aggregated_point)
-    #
-    #     y = next_y
-    for point in limited(series, start, end):
+    for _, points in grouped_points(limited_points):
+        point = aggregate_points(points)
         point['y'] = round(y + point['dy'], 2)
         series_data.append(point)
+        y = point['y']
 
+    return series_data
+
+
+def distributed(series, limited_points) -> List[Point]:
+    series_data = []
+    y = series.initial_value
+    for point in distributed_grouped(grouped_points(limited_points)):
+        point['y'] = round(y + point['dy'], 2)
+        series_data.append(point)
         y = point['y']
 
     return series_data
