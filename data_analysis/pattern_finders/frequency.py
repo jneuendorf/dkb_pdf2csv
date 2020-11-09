@@ -27,14 +27,15 @@ class FrequencyPatternFinder(BasePatternFinder):
         candidates for a pattern."""
         tolerance_y: float = 0.0
         """Specifies how exact a point's dy has to match a certain value."""
-        # tolerance_x: TimedeltaKwargs
-        # """Specifies how exact a point's x has to match a certain datetime"""
+        tolerance_x: TimedeltaKwargs = field(default_factory=dict)
+        """Specifies how exact a point's x has to match a certain datetime"""
 
     def select_subsets(self,
                        data_points_queryset: Types.QuerySet) -> Types.Subsets:
-        assert data_points_queryset.exists(), (
-            'There must be at least 1 data point'
-        )
+        if not data_points_queryset:
+            return []
+
+        assert self.options.intervals, 'No intervals given'
 
         # Iterate starting points that give us (potentially) different subsets.
         # Starting points are those points lie within the interval
@@ -68,13 +69,18 @@ class FrequencyPatternFinder(BasePatternFinder):
         atomic_delta = relativedelta(**{self.options.precision: 1})
         subsets = []
 
+        tolerance_x = relativedelta(**self.options.tolerance_x)
+
         for i in range(num_atomic_periods):
             delta_iterator = itertools.cycle(deltas)
             subset = {}
             time_cursor = starting_time + (i * atomic_delta)
 
             while True:
-                points_at_x = data_points_queryset.filter(x=time_cursor)
+                points_at_x = data_points_queryset.filter(
+                    x__gte=time_cursor - tolerance_x,
+                    x__lte=time_cursor + tolerance_x,
+                )
                 if points_at_x:
                     subset[time_cursor] = list(points_at_x)
                 if not data_points_queryset.filter(x__gte=time_cursor):
@@ -125,6 +131,6 @@ class FrequencyPatternFinder(BasePatternFinder):
         # TODO: Maybe add an option for only having e.g. 90% of the points
         #   fulfill the tolerance condition
         return all(
-            abs(self.get_value(p) - self.get_value(q)) <= tolerance
+            abs(p.dy - q.dy) <= tolerance
             for p, q in itertools.combinations(subset, 2)
         )

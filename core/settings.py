@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'data_analysis',
     'data_vis',
 
     'django.contrib.admin',

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Set
 
 from django.db.models import QuerySet
 
@@ -29,7 +29,6 @@ Types = objectview(
 
 
 class BasePatternFinder(ABC):
-    data_attr = 'dy'
 
     @dataclass
     class Options:
@@ -45,17 +44,14 @@ class BasePatternFinder(ABC):
     def __init__(self, **options):
         self.options = self.Options(**options)
 
-    def get_value(self, point):
-        return getattr(point, self.data_attr)
-
-    def find(self, data_points_queryset: QuerySet) -> Iterable[Subset]:
+    def find(self, data_points_queryset: QuerySet) -> Set[Subset]:
         """Finds patterns in subsets of points."""
 
-        return [
+        return {
             subset
             for subset in self.select_subsets(data_points_queryset)
             if self.should_use_subset(subset)
-        ]
+        }
 
     @abstractmethod
     def select_subsets(self, data_points_queryset: QuerySet) -> Subsets:
