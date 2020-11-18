@@ -4,9 +4,15 @@ from io import StringIO
 from ..models import DataPoint
 
 
+FIELD_NAMES = ('x', 'dy', 'meta', 'tags')
+
+
 def series_to_csv(series):
     points = series.data_points.all().order_by('x')
-    point_dicts = (point.as_dict() for point in points)
+    point_dicts = (
+        point.as_dict(field_names=FIELD_NAMES)
+        for point in points
+    )
 
     in_memory_csv = StringIO()
     writer = csv.DictWriter(

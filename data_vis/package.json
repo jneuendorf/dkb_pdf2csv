@@ -8,6 +8,8 @@
     "dependencies": {
         "@nivo/api": "^0.62.0",
         "core-js": "3",
+        "js-cookie": "^2.2.1",
+        "lodash.memoize": "^4.1.2",
         "rc-slider": "^9.5.1",
         "rc-switch": "^3.2.1",
         "react": "^16.13.1",

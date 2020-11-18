@@ -1,7 +1,7 @@
 module.exports = {
     mode: 'development',
     entry: {
-        main: './static/data_vis/index.js',
+        main: './static/data_vis/main.js',
     },
     output: {
         filename: '[name].js',
@@ -19,6 +19,6 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.jsx'],
     },
-    // devtool: 'inline-source-map',
-    devtool: 'eval-cheap-module-source-map',
+    devtool: 'inline-source-map',
+    // devtool: 'eval-cheap-module-source-map',
 }

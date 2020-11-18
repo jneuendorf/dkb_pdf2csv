@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import Switch from 'rc-switch'
 import { ResponsiveLine } from '@nivo/line'
 import styled from 'styled-components'
@@ -31,12 +31,15 @@ export const LineChart = ({ data, highlightedTags, onClick }) => {
         }
     })
 
+    const toggleYAttribute = useCallback(
+        (checked, event) => setYAttribute(checked ? 'dy' : 'y'),
+        [setYAttribute],
+    )
+
     return <React.Fragment>
         <SwitchContainer>
             {'y '}
-            <Switch
-                onChange={(checked, event) => setYAttribute(checked ? 'dy' : 'y')}
-            />
+            <Switch onChange={toggleYAttribute} />
             {' dy'}
         </SwitchContainer>
         <ResponsiveLine
@@ -56,7 +59,7 @@ export const LineChart = ({ data, highlightedTags, onClick }) => {
                 type: 'linear',
                 min: 'auto',
                 max: 'auto',
-                stacked: true,
+                stacked: false,
                 reverse: false,
             }}
             axisTop={null}

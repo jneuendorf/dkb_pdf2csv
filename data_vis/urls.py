@@ -1,11 +1,13 @@
 from django.urls import path
 
-from . import views
+from .views import index, test, api
 
 
 urlpatterns = [
-    path('', views.index),
-    path('data/aggregated/', views.data.aggregated),
-    path('data/distributed/', views.data.distributed),
-    path('tags/', views.tags),
+    path('', index),
+    path('test/', test),
+    path('api/data/aggregated/', api.data.aggregated),
+    path('api/data/distributed/', api.data.distributed),
+    path('api/tags/', api.tags),
+    path('api/analytics/finders/', api.analytics.finders),
 ]

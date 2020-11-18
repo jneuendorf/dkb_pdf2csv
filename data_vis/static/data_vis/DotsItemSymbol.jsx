@@ -15,7 +15,7 @@ export const DotsItemSymbol = memo(props => {
     } = props
 
     const shouldHighlight = datum.tags.some(
-        tag => highlightedTags.indexOf(tag) >= 0
+        tag => highlightedTags.includes(tag)
     )
 
     const r = shouldHighlight ? (size / 1.2) : (size / 2)

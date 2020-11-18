@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { LineChart } from './LineChart'
 import { TagFilter } from './TagFilter'
+import { PatternFinders } from './PatternFinders'
 import { DateRange } from './DateRange'
 import { MetaList } from './MetaList'
 // import { intersection } from './util/set'
-import { getInitialData } from './util/data'
+import { getInitialData, associatedPatterns } from './util/data'
 
 
 const Container = styled.div`
@@ -67,8 +68,10 @@ const ChartCaption = styled(({ data, className }) => {
 
 export const App = props => {
     const [chartData, setChartData] = useState([])
+    const [patterns, setPatterns] = useState([])
     const [tags, setTags] = useState([])
     const [dateRangeMinMax, setDateRangeMinMax] = useState([0, 0])
+    const [dateRange, setDateRange] = useState([0, 0])
     const [highlightedTags, setHighlightedTags] = useState([])
     const [selectedPoint, selectPoint] = useState(null)
 
@@ -91,6 +94,7 @@ export const App = props => {
                         ])
                     )
                     setDateRangeMinMax(initialDateRange)
+                    setDateRange(initialDateRange)
                 }
             }
         }
@@ -98,45 +102,67 @@ export const App = props => {
         getData()
     })
 
+    const setDateRangeAndChartData = useCallback(
+        (range, data) => {
+            setDateRange(range)
+            setChartData(data)
+        },
+        [setChartData, setDateRange],
+    )
+    // const applyPatterns = useCallback(
+    //     patterns => setChartData(chartDataWithPatterns(patterns, chartData)),
+    //     [chartData, setChartData],
+    // )
+    const applyPatterns = useCallback(
+        patterns => setPatterns(associatedPatterns(patterns, chartData)),
+        [setPatterns, chartData],
+    )
+
     return <Container>
-        <Filters>
-            <FilterContainer>
-                <FilterHeading>Search</FilterHeading>
-                <input />
-            </FilterContainer>
-            <FilterContainer>
-                <FilterHeading>Tags</FilterHeading>
-                <TagFilter
-                    tags={tags}
-                    highlightedTags={highlightedTags}
-                    setHighlightedTags={setHighlightedTags}
-                />
-            </FilterContainer>
-        </Filters>
-        <ChartContainer>
-            {
-                dateRangeMinMax[0] !== dateRangeMinMax[1]
-                && <DateRange
-                    min={dateRangeMinMax[0]}
-                    max={dateRangeMinMax[1]}
-                    setChartData={setChartData}
-                />
-            }
-
-            <ChartCaption data={chartData} />
-            <LineChart
-                data={chartData}
-                highlightedTags={highlightedTags}
-                onClick={selectPoint}
-            />
-
-            <div className='meta'>
+            <Filters>
+                <FilterContainer>
+                    <FilterHeading>Search</FilterHeading>
+                    <input />
+                </FilterContainer>
+                <FilterContainer>
+                    <FilterHeading>Tags</FilterHeading>
+                    <TagFilter
+                        tags={tags}
+                        highlightedTags={highlightedTags}
+                        setHighlightedTags={setHighlightedTags}
+                    />
+                </FilterContainer>
+                <FilterContainer>
+                    <PatternFinders
+                        dateRange={dateRange}
+                        applyPatterns={applyPatterns}
+                    />
+                </FilterContainer>
+            </Filters>
+            <ChartContainer>
                 {
-                    selectedPoint
-                    && <MetaList meta={selectedPoint.data.meta} />
+                    dateRangeMinMax[0] !== dateRangeMinMax[1]
+                    && <DateRange
+                        min={dateRangeMinMax[0]}
+                        max={dateRangeMinMax[1]}
+                        updateAppState={setDateRangeAndChartData}
+                        setDateRangeMinMax={setDateRangeMinMax}
+                    />
                 }
-            </div>
-        </ChartContainer>
-    </Container>
 
+                <ChartCaption data={chartData} />
+                <LineChart
+                    data={chartData.concat(patterns)}
+                    highlightedTags={highlightedTags}
+                    onClick={selectPoint}
+                />
+
+                <div className='meta'>
+                    {
+                        selectedPoint
+                        && <MetaList meta={selectedPoint.data.meta} />
+                    }
+                </div>
+            </ChartContainer>
+        </Container>
 }

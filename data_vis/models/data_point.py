@@ -6,7 +6,7 @@ def identify(x):
 
 
 class DataPoint(models.Model):
-    CSV_FIELD_NAMES = ('x', 'dy', 'meta')
+    FIELD_NAMES = ('id', 'x', 'dy', 'meta', 'tags')
 
     series = models.ForeignKey(
         'Series',
@@ -20,17 +20,24 @@ class DataPoint(models.Model):
     tags = models.ManyToManyField('Tag', related_name='data_points')
 
     class Meta:
-        unique_together = ['series', 'x', 'dy', 'meta']
+        unique_together = ('series', 'x', 'dy', 'meta')
 
-    def as_dict(self, **transformers):
+    def as_dict(self, field_names=None, **transformers):
+        if field_names is None:
+            field_names = self.FIELD_NAMES
+
+        if not transformers.get('tags'):
+            transformers['tags'] = lambda tags: list(
+                tags.values_list('identifier', flat=True)
+            )
+
         return {
             **{
                 field_name: transformers.get(field_name, identify)(
                     getattr(self, field_name)
                 )
-                for field_name in self.CSV_FIELD_NAMES
+                for field_name in field_names
             },
-            'tags': list(self.tags.values_list('identifier', flat=True)),
         }
 
     def __str__(self):

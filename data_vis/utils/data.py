@@ -53,7 +53,7 @@ def distributed_grouped(grouped) -> List[Point]:
     MINUTES_PER_DAY = 24 * 60
 
     points = []
-    for _, group in grouped:
+    for group in grouped:
         group_size = len(group)
         space_in_minutes = MINUTES_PER_DAY // group_size
         used_minutes = 0

@@ -1,6 +1,6 @@
 from django.http import HttpRequest, JsonResponse
 
-from ..models import Tag
+from ...models import Tag
 from .serializers import JsonEncoder
 
 

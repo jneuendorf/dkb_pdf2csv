@@ -1,8 +1,11 @@
-from django.http import JsonResponse
+from datetime import date
 from typing import Iterable
 
-from .. import utils
-from ..models import DataPoint, Series
+from dateutil.relativedelta import relativedelta
+from django.http import JsonResponse
+
+from ... import utils
+from ...models import DataPoint, Series
 from .serializers import JsonEncoder
 
 
@@ -23,9 +26,11 @@ from .serializers import JsonEncoder
 
 
 def limited_series(request) -> Iterable[Iterable[DataPoint]]:
+    today = date.today()
+
     series_names = request.GET.getlist('series', default=[])
-    start = request.GET.get('start', default='1970-01-01')
-    end = request.GET.get('end', default='9999-12-31')
+    start = request.GET.get('start', default=today - relativedelta(months=6))
+    end = request.GET.get('end', default=today)
 
     if not series_names:
         series = Series.objects.all()
