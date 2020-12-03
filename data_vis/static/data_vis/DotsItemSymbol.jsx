@@ -24,6 +24,7 @@ export const DotsItemSymbol = memo(props => {
     return <circle
         r={r}
         fill={color}
+        // TODO: darken
         stroke={borderColor}
         strokeWidth={strokeWidth}
         style={{ pointerEvents: 'none' }}

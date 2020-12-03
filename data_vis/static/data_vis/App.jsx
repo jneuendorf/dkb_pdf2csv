@@ -1,69 +1,35 @@
 import React, { useCallback, useState, useEffect } from 'react'
-import styled from 'styled-components'
+import {
+    Layout,
+    Collapse,
+} from 'antd'
 
-import { LineChart } from './LineChart'
 import { TagFilter } from './TagFilter'
 import { PatternFinders } from './PatternFinders'
 import { DateRange } from './DateRange'
-import { MetaList } from './MetaList'
-// import { intersection } from './util/set'
+import { Chart } from './Chart'
 import { getInitialData, associatedPatterns } from './util/data'
 
 
-const Container = styled.div`
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    bottom: 5px;
-    left: 5px;
-    font-family: sans-serif;
-    width: 100%;
-    height: 100%;
-`
+const {
+    Content,
+ } = Layout
 
-const Filters = styled.div`
-    border-right: 1px solid rgba(0,0,0,.1);
-    bottom: 0;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 250px;
-`
 
-const FilterContainer = styled.div`
-    padding: 10px 5px;
-    margin-bottom: 16px;
-    transition: box-shadow 0.4s;
-
-    &:hover {
-        box-shadow: 0 10px 20px rgba(0,0,0,.1);
-    }
-`
-
-const FilterHeading = styled.h3`
-    margin-top: 5px;
-`
-
-const ChartContainer = styled.div`
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 200px;
-    left: 250px;
-`
-
-const ChartCaption = styled(({ data, className }) => {
-    const longestSeries = Math.max(
-        0,
-        ...data.map(series => series.data.length)
-    )
-    return <h4 className={className}>
-        {longestSeries}&nbsp;points
-    </h4>
-})`
-    margin: 30px 0 0 0;
-    padding-left: 50px;
-`
+const Sider = (props) => {
+    const [collapsed, setCollapsed] = useState(false)
+    return <Layout.Sider
+        {...props}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={useCallback(
+            (collapsed) => setCollapsed(collapsed),
+            [setCollapsed]
+        )}
+        theme="light"
+        width={250}
+    />
+}
 
 
 export const App = props => {
@@ -73,7 +39,6 @@ export const App = props => {
     const [dateRangeMinMax, setDateRangeMinMax] = useState([0, 0])
     const [dateRange, setDateRange] = useState([0, 0])
     const [highlightedTags, setHighlightedTags] = useState([])
-    const [selectedPoint, selectPoint] = useState(null)
 
     useEffect(() => {
         async function getData() {
@@ -118,28 +83,29 @@ export const App = props => {
         [setPatterns, chartData],
     )
 
-    return <Container>
-            <Filters>
-                <FilterContainer>
-                    <FilterHeading>Search</FilterHeading>
+    return <Layout>
+        <Sider>
+            <Collapse defaultActiveKey={['search', 'tags', 'patternFinders']}>
+                <Collapse.Panel key='search' header='Search'>
                     <input />
-                </FilterContainer>
-                <FilterContainer>
-                    <FilterHeading>Tags</FilterHeading>
+                </Collapse.Panel>
+                <Collapse.Panel key='tags' header='Tags'>
                     <TagFilter
                         tags={tags}
                         highlightedTags={highlightedTags}
                         setHighlightedTags={setHighlightedTags}
                     />
-                </FilterContainer>
-                <FilterContainer>
+                </Collapse.Panel>
+                <Collapse.Panel key='patternFinders' header='Patterns'>
                     <PatternFinders
                         dateRange={dateRange}
                         applyPatterns={applyPatterns}
                     />
-                </FilterContainer>
-            </Filters>
-            <ChartContainer>
+                </Collapse.Panel>
+            </Collapse>
+        </Sider>
+        <Layout>
+            <Content>
                 {
                     dateRangeMinMax[0] !== dateRangeMinMax[1]
                     && <DateRange
@@ -149,20 +115,12 @@ export const App = props => {
                         setDateRangeMinMax={setDateRangeMinMax}
                     />
                 }
-
-                <ChartCaption data={chartData} />
-                <LineChart
-                    data={chartData.concat(patterns)}
+                <Chart
+                    data={chartData}
+                    patterns={patterns}
                     highlightedTags={highlightedTags}
-                    onClick={selectPoint}
                 />
-
-                <div className='meta'>
-                    {
-                        selectedPoint
-                        && <MetaList meta={selectedPoint.data.meta} />
-                    }
-                </div>
-            </ChartContainer>
-        </Container>
+            </Content>
+        </Layout>
+    </Layout>
 }

@@ -7,11 +7,10 @@
     "license": "MIT",
     "dependencies": {
         "@nivo/api": "^0.62.0",
+        "antd": "^4.8.4",
         "core-js": "3",
         "js-cookie": "^2.2.1",
         "lodash.memoize": "^4.1.2",
-        "rc-slider": "^9.5.1",
-        "rc-switch": "^3.2.1",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "styled-components": "^5.2.0"
@@ -24,6 +23,7 @@
         "@babel/preset-react": "^7.10.4",
         "babel-eslint": "^10.1.0",
         "babel-loader": "^8.1.0",
+        "babel-plugin-import": "^1.13.1",
         "babel-plugin-styled-components": "^1.11.1",
         "eslint": "^7.10.0",
         "eslint-plugin-react": "^7.21.3",
